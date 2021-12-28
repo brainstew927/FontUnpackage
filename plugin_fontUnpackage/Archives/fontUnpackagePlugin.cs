@@ -21,7 +21,7 @@ namespace plugin_fontUnpackage.Archives
 
         public FontUnpackagePlugin()
         {
-            Metadata = new PluginMetadata("fontUnpackage", "brainstew927", "The main texture resource archive in Streets Of Rage 4.");
+            Metadata = new PluginMetadata("fontUnpackage", "brainstew927", "Unpackage the fonts archive in Inazuma Eleven go striker 2013.");
         }
 
         public IPluginState CreatePluginState(IBaseFileManager fileManager)
