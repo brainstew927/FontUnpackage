@@ -12,9 +12,9 @@ using Kontract.Models;
 namespace plugin_fontUnpackage.Archives
 {
     public class FontUnpackagePlugin : IFilePlugin
-    {
+    { 
         // TODO: generare la mia GUID
-        public Guid PluginId => Guid.Parse("bab218f4-550f-40ee-9219-d83b11265883");
+        public Guid PluginId => Guid.Parse("39ef72b0-8a08-4edb-a83e-3543020c86dd");
         public PluginType PluginType => PluginType.Archive;
         public string[] FileExtensions => new[] { "*.bin" };
         public PluginMetadata Metadata { get; }
