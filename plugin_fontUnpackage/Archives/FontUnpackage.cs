@@ -25,6 +25,16 @@ namespace plugin_fontUnpackage.Archives
             return new_array;
         }
 
+        public int NextOffset(UInt32[] filetable,int pos)
+        {
+            for (var i = pos + 1; i < filetable.Length; i++)
+            {
+                if (filetable[i] != filetable[pos])
+                    return i;
+            }
+            return -1; //il tuo DEFAULT_VALUE
+        }
+
         public List<IArchiveFileInfo> Load(Stream input)
         {
 
@@ -45,12 +55,55 @@ namespace plugin_fontUnpackage.Archives
              *
              */
             UInt32 file_count = FromByteArrayToInt(file_count_BYTES);
+            //filetable con tutti gli indirizzi, 4 byte per indirizzo - 4 byte di file_count
+            UInt32[] file_table = new UInt32[file_count]; //array di array di 4 byte
             //files.Add(new ArchiveFileInfo(new MemoryStream(file_count_BYTES), $"file_{file_count}"));
-            files.Add(new ArchiveFileInfo(new MemoryStream(file_count_BYTES), $"filecount_{file_count}"));
+            //files.Add(new ArchiveFileInfo(new MemoryStream(file_count_BYTES), $"filecount_{file_count}"));
             
             // abbiamo quanti file sono:
             // ciclo for per avere tutti gli "indirizzi" (in realtà sono offset)
-            for (var i = 0; i < file_count - 1; i++)
+            //NUOVO CICLO FOR
+            for (var i = 0; i < file_count; i++)
+            {
+                //creo substream per leggere gli indirizzi
+                var sStream = new SubStream(input, 4 * (i+1), 4);
+                BinaryReaderX reader_ = new BinaryReaderX(sStream, false);
+                file_table[i] = reader_.ReadType<UInt32>();
+                //file_table[i] = BitConverter.GetBytes(off_partenza);
+                //files.Add(new ArchiveFileInfo(new MemoryStream(BitConverter.GetBytes(file_table[i])), file_table[i].ToString("D8") + " " + i.ToString("D8")));
+            }
+
+            //ordino array
+            Array.Sort(file_table);
+
+            //creo e aggiungo i file
+            for (var i = 0; i < file_count; i++)
+            {
+                //leggo offset di partenza
+                int file_start = Convert.ToInt32(file_table[i]);
+                //leggo offset di arrivo
+                int file_end = NextOffset(file_table, i);
+
+                if (file_end == -1)
+                {
+                    file_end = Convert.ToInt32(input.Length);
+                } else
+                {
+                    file_end = Convert.ToInt32(file_table[file_end]);
+                }
+
+                //quanti byte devo leggere?
+                int lenght = file_end - file_start;
+                var stream = new SubStream(input, file_start, lenght);
+                BinaryReaderX reader_ = new BinaryReaderX(stream, false);
+                byte[] data = reader_.ReadAllBytes();
+                files.Add(new ArchiveFileInfo(new MemoryStream(data), i.ToString("D8") + ".bin"));
+
+            }
+            
+            
+            //VECCHIO CICLO FOR
+            /*for (var i = 0; i < file_count - 1; i++)
             {
                 byte[] tmp = new byte[10];
                 // leggo i byte dell'offset attuale
@@ -88,7 +141,7 @@ namespace plugin_fontUnpackage.Archives
                     data[j] = reader_.ReadByte();
                 }
                 files.Add(new ArchiveFileInfo(new MemoryStream(data), i.ToString("D8")));
-            }
+            }*/
 
 
             return files;
