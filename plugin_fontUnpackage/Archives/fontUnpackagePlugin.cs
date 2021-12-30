@@ -25,10 +25,8 @@ namespace plugin_fontUnpackage.Archives
 
         public async Task<bool> IdentifyAsync(IFileSystem fileSystem, UPath filePath, IdentifyContext identifyContext)
         {
-            var fileStream = await fileSystem.OpenFileAsync(filePath);
+            return filePath.FullName.Split(".")[1] == "bin";
 
-            using var br = new BinaryReaderX(fileStream);
-            return br.ReadString(3) == "BIN";
         }
 
         public FontUnpackagePlugin()
