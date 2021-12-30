@@ -98,7 +98,7 @@ namespace plugin_fontUnpackage.Archives
                 }
                 var data_stream = new MemoryStream(data[((int)file_start)..((int)file_start + length)]);
                 // aggiungo il file all'elenco
-                files.Add(new ArchiveFileInfo(data_stream, i.ToString("D8")+".bin", Kompression.Implementations.Compressions.ShadeLzHeaderless, ShadeLzHeaderlessDecoder.CalculateDecompressedSize(data_stream)));
+                files.Add(new ArchiveFileInfo(data_stream, i.ToString("D8")+".unbin", Kompression.Implementations.Compressions.ShadeLzHeaderless, ShadeLzHeaderlessDecoder.CalculateDecompressedSize(data_stream)));
             }
 
 
