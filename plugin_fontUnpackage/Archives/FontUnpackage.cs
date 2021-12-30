@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Komponent.IO.Streams;
+using Kompression.Implementations.Decoders.Headerless;
+
 
 namespace plugin_fontUnpackage.Archives
 {
@@ -94,8 +96,9 @@ namespace plugin_fontUnpackage.Archives
                     // leggi tutto il file
                     length = data.Length;
                 }
+                var data_stream = new MemoryStream(data[((int)file_start)..((int)file_start + length)]);
                 // aggiungo il file all'elenco
-                files.Add(new ArchiveFileInfo(new MemoryStream(data[((int)file_start)..((int)file_start+length)]), i.ToString("D8")));
+                files.Add(new ArchiveFileInfo(data_stream, i.ToString("D8")+".bin", Kompression.Implementations.Compressions.ShadeLzHeaderless, ShadeLzHeaderlessDecoder.CalculateDecompressedSize(data_stream)));
             }
 
 

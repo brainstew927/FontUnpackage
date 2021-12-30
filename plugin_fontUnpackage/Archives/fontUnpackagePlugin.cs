@@ -13,8 +13,7 @@ namespace plugin_fontUnpackage.Archives
 {
     public class FontUnpackagePlugin : IFilePlugin
     { 
-        // TODO: generare la mia GUID
-        public Guid PluginId => Guid.Parse("39ef72b0-8a08-4edb-a83e-3543020c86dd");
+        public Guid PluginId => Guid.Parse("5580AE6F-1FC7-474D-ACAF-EA3A76ED7050");
         public PluginType PluginType => PluginType.Archive;
         public string[] FileExtensions => new[] { "*.bin" };
         public PluginMetadata Metadata { get; }
