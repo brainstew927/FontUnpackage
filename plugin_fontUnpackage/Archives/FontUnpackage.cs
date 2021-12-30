@@ -24,6 +24,19 @@ namespace plugin_fontUnpackage.Archives
             }
             return new_array;
         }
+        public int getNextOffset(UInt32[] array, int pos)
+        {
+            for (int i = pos+1; i < array.Length; i++)
+            {
+                if (array[i] != array[pos])
+                {
+                    // l'elemento è diverso, restituisci questo el
+                    return i;
+                }
+            }
+            // in caso non si sia trovato alcun elemento valido restituisci -1
+            return -1;
+        }
 
         public List<IArchiveFileInfo> Load(Stream input)
         {
@@ -32,8 +45,7 @@ namespace plugin_fontUnpackage.Archives
             // leggo per prima cosa il file count (sono i primi 32 bit)
             // oggetto usato per leggere una certa qta di bit per 
             var br = new BinaryReaderX(input, true);
-            byte[] file_count_BYTES = new byte[4];
-            br.Read(file_count_BYTES, 0, 4);
+            byte[] data = br.ReadAllBytes();
             // ottengo il valore contenuto in file_count
             /*
              * 0: 0XFF -> 1111 1111 
@@ -44,50 +56,46 @@ namespace plugin_fontUnpackage.Archives
              * prima converto ff in intero e lo moltiplico per 10 alla qta di byte totali (4) - 1 - la posizione attuale (0) (10^3)
              *
              */
-            UInt32 file_count = FromByteArrayToInt(file_count_BYTES);
+            UInt32 file_count = FromByteArrayToInt(data[0..4]);
             //files.Add(new ArchiveFileInfo(new MemoryStream(file_count_BYTES), $"file_{file_count}"));
-            files.Add(new ArchiveFileInfo(new MemoryStream(file_count_BYTES), $"filecount_{file_count}"));
-            
+            files.Add(new ArchiveFileInfo(new MemoryStream(data[0..4]), $"filecount_{file_count}"));
+
             // abbiamo quanti file sono:
             // ciclo for per avere tutti gli "indirizzi" (in realtà sono offset)
+            // creo un nuovo array di uint32 dove andrò a memorizzare tutti gli offset dei file.
+            // devo poi ordinare questo array.
+            UInt32[] file_table = new UInt32[(int)file_count];
+            // carico i dati nella filetable
+            for(var i = 1; i < file_count; i++)
+            {
+                // prendo i dati da data
+                // carico in file_table effetuando la conversione con la mia funzione
+                file_table[i] = FromByteArrayToInt(data[(i * 4)..((i + 1) * 4)]);
+            }
+            // ordino la file table
+            Array.Sort(file_table);
+            // ora ho la file table sortata
+            // leggo un elemento per volta dalla file table e carico i dati dei vari file nei file
             for (var i = 0; i < file_count - 1; i++)
             {
-                byte[] tmp = new byte[10];
-                // leggo i byte dell'offset attuale
-                // creo un nuovo substream 
-                var stream = new SubStream(input, 4*(i+1), 4);
-                BinaryReaderX reader_ = new BinaryReaderX(stream, false);
-                UInt32 off_partenza = reader_.ReadType<UInt32>();
+                UInt32 file_start = file_table[i];
 
-                //files.Add(new ArchiveFileInfo(new MemoryStream(BitConverter.GetBytes(off_partenza)), $"{i}_partenza"));
-                // leggo i byte dell'offset "prossimo"
-                stream = new SubStream(input, 4 * (i + 2), 4);
-                reader_ = new BinaryReaderX(stream, false);
-                UInt32 off_fine = reader_.ReadType<UInt32>();
-                //files.Add(new ArchiveFileInfo(new MemoryStream(BitConverter.GetBytes(off_fine)), i.ToString("D8")));
+                int file_end_index = getNextOffset(file_table, i);
 
+                int length = 0;
 
-                off_fine -= 1;
-                var size = off_fine - off_partenza;
-
-                if(off_fine < off_partenza || off_fine <= 1 || size <= 0)
+                if (file_end_index != -1)
                 {
-                    files.Add(new ArchiveFileInfo(new MemoryStream(BitConverter.GetBytes(off_fine)), i.ToString("D8") + "_PROBLEMA"));
-
-                    continue;
+                    // leggi file_end - file_start byte.
+                    length = (int)(file_table[file_end_index] - file_start);
                 }
-
-                // creo il nuovo stream (che contiene SOLO i dati del file)
-                stream = new SubStream(input, off_partenza, size);
-                // creo un nuovo reader che legge da strewam
-                reader_ = new BinaryReaderX(stream, false);
-                // leggo i dati del file e li metto in un array di Byte
-                byte[] data = new byte[size];
-                for (var j = 0; j < off_fine - off_partenza; j++)
+                else
                 {
-                    data[j] = reader_.ReadByte();
+                    // leggi tutto il file
+                    length = data.Length;
                 }
-                files.Add(new ArchiveFileInfo(new MemoryStream(data), i.ToString("D8")));
+                // aggiungo il file all'elenco
+                files.Add(new ArchiveFileInfo(new MemoryStream(data[((int)file_start)..((int)file_start+length)]), i.ToString("D8")));
             }
 
 
