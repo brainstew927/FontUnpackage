@@ -13,7 +13,7 @@ namespace plugin_fontUnpackage.Images
         public FontRune() {
         
         }
-        public IList<ImageInfo> Load(Stream input)
+        public ImageInfo Load(Stream input)
         {
             using var br = new BinaryReaderX(input);
 
@@ -28,7 +28,7 @@ namespace plugin_fontUnpackage.Images
             
              int pos = 0;
              int to_read = 0;
-             byte[] img_data = new byte[25 * 24 *4];
+             byte[] img_data = new byte[25 * 24 * 4];
              for(int y = 0; y < 25; y++)
              {
                  byte current_byte = 0; 
@@ -55,18 +55,15 @@ namespace plugin_fontUnpackage.Images
                    
                     
                         img_data[pos + 0] = alpha; // R
-                        img_data[pos + 1] = 0; // G? (sfondo verde)
-                        img_data[pos + 2] = 0;
-                        img_data[pos + 3] = 0;
+                        img_data[pos + 1] = 255; // G? (sfondo verde)
+                        img_data[pos + 2] = 255;
+                        img_data[pos + 3] = 255;
                     
                     pos+=4;  
                  }
              }
-             
-            //var prova = br.ReadAllBytes();
-            var imageInfo = new ImageInfo(img_data, 0, new Size(24, 25));
 
-            return new List<ImageInfo> { imageInfo }; ;
+            return new ImageInfo(img_data, 0, new Size(24, 25));
         }
     }
 }

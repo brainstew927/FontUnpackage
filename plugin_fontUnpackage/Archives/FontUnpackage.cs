@@ -60,7 +60,7 @@ namespace plugin_fontUnpackage.Archives
              */
             UInt32 file_count = FromByteArrayToInt(data[0..4]);
             //files.Add(new ArchiveFileInfo(new MemoryStream(file_count_BYTES), $"file_{file_count}"));
-            files.Add(new ArchiveFileInfo(new MemoryStream(data[0..4]), $"filecount_{file_count}"));
+            //files.Add(new ArchiveFileInfo(new MemoryStream(data[0..4]), $"filecount_{file_count}"));
 
             // abbiamo quanti file sono:
             // ciclo for per avere tutti gli "indirizzi" (in realtà sono offset)
@@ -100,7 +100,6 @@ namespace plugin_fontUnpackage.Archives
                 // aggiungo il file all'elenco
                 files.Add(new ArchiveFileInfo(data_stream, i.ToString("D8")+".unbin", Kompression.Implementations.Compressions.ShadeLzHeaderless, ShadeLzHeaderlessDecoder.CalculateDecompressedSize(data_stream)));
             }
-
 
             return files;
         }

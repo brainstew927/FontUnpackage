@@ -27,9 +27,7 @@ namespace plugin_fontUnpackage.Images
 
         public async Task<bool> IdentifyAsync(IFileSystem fileSystem, UPath filePath, IdentifyContext identifyContext)
         {
-
             return filePath.FullName.Split(".")[1] == "unbin";
-
         }
 
         public IPluginState CreatePluginState(IBaseFileManager fileManager)

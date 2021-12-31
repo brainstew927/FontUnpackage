@@ -26,6 +26,7 @@ namespace plugin_fontUnpackage.Images
 
         public FontViewerState()
         {
+            Images =  new List<IKanvasImage> { };
             img = new FontRune();
             EncodingDefinition = new EncodingDefinition();
             EncodingDefinition.AddColorEncoding(0, new Rgba(8, 8, 8, 8));
@@ -36,7 +37,7 @@ namespace plugin_fontUnpackage.Images
             var fileStream = await fileSystem.OpenFileAsync(filePath);
             var img_info = img.Load(fileStream);
             
-            Images = img_info.Select(info => new KanvasImage(EncodingDefinition, info)).ToArray(); ;
+            Images.Add(new KanvasImage(EncodingDefinition, img_info));
         }
     }
 }
