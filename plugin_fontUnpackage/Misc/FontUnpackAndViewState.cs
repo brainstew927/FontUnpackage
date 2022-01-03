@@ -71,21 +71,16 @@ namespace plugin_fontUnpackage.Misc
             if (files.Count %2 != 0){
                 c = 1;
             }
-            for (int i = 0; i < blocchi; i++)
+            for (int i = 0; i < files.Count; i++)
             {
-                // parto da 0 e arrivo a len / 4
-
-                for (int j = (int)(i * Math.Floor((double)(files.Count / blocchi))); j < (i + 1) * Math.Floor((double)(((files.Count) / blocchi) +1)); j++)
-                {
-                    var file_data = await files[j].GetFileData();
+                    var file_data = await files[i].GetFileData();
                     var img_info = img.Load(file_data);
                     // aggiunge l'immagine alla lista delle immagini
                     Images.Add(new KanvasImage(EncodingDefinition, img_info));
-                    if(j >= files.Count || j > 2500)
+                    if(i > 3000)
                     {
                         break;
                     }
-                }
                 context.ProgressContext.ReportProgress($"caricamento: {i + 1}/{blocchi}", i, blocchi);
             }
 
